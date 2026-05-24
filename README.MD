@@ -53,24 +53,23 @@ Saat dokumen PDF diupload, teksnya dipotong-potong menjadi bagian kecil (chunk) 
 
 **Fungsi:** *(Jelaskan dengan kata-katamu sendiri apa fungsi dari CHUNK_SIZE)*
 
-> Jawab: ...
+> Jawab: Chunk Size berfungsi untuk mengubah informasi berupa teks yang diproses oleh model menjadi bagian-bagian kecil agar model RAG tidak kesulitan memproses informasi, informasi telah dibagi-bagi sehingga model tinggal mencari informasi yang diinginkan pada bagian-bagian yang telah dibagi tersebut secara lebih cepat.
 
 **Pengaruhnya:**
 
 | Range Nilai | Efek |
 | --- | --- |
-| **Kecil (100–200)** | *(Jelaskan pengaruhnya terhadap presisi dan kelengkapan konteks)* |
-| **Sedang (250–400)** ⭐ Recommended | *(Jelaskan mengapa range ini direkomendasikan)* |
-| **Besar (500–1000)** | *(Jelaskan pengaruhnya terhadap pencarian dan relevansi)* |
+| **Kecil (100–200)** | *Ketika chunk size diubah menjadi lebih kecil, misal 150, maka teks dibagi menjadi 8 bagian yang terbilang banyak, sehingga waktu kerja proses menjadi sedikit lebih lambat. Jawaban yang diberikan pun lebih singkat dengan banyak konteks* |
+| **Sedang (250–400)** ⭐ Recommended | *Ketika chunk size diubah ke range sedang, jawaban yang diberikan oleh model jauh lebih cepat. Teks dibagi menjadi 3-4 bagian saja sehingga model bisa memproses jawaban dengan lebih cepat dan jawaban yang diberikan pun lebih lengkap dan sesuai, sehingga direkomendasikan.* |
+| **Besar (500–1000)** | *Chunk size yang besar membuat sehingga teks yang ada pun dibagi menjadi 2 bahkan tidak dibagi sama sekali. Jawaban yang dihasilkan model pun lebih panjang karena teks hampir tidak dibagi sama sekali dan konteks yang diberikan pun kadang tercampur dan tidak spesifik sesuai konteks pertanyaan.* |
 
 **Pertanyaan Refleksi:**
 
 * Chunk besar atau kecil yang lebih tepat untuk dokumen yang kamu tes? Mengapa?
-  > Jawab: ...
+  > Jawab: Chunk kecil lebih sesuai untuk dokumen yang saya tes karena menghasilkan jawaban yang lebih singkat dan padat sesuai dengan konteks pertanyaan, walaupun kadang terpotong. Dibandingkan dengan chunk besar yang malah memberikan jawaban yang kadang lebih dari apa yang ditanyakan/diluar konteks pertanyaan.
 
 * Apa yang terjadi kalau jawaban terasa "terpotong" atau kurang konteks? Parameter mana yang harus diubah?
-  > Jawab: ...
-
+  > Jawab: Kalau jawaban terasa terpotong atau kurang konteks maka parameter yang harus diubah adalah ukuran chunk. Ketika ukuran chunk diperbesar maka jawaban yang dihasilkan model pun akan jauh lebih lengkap dan sesuai dengan konteks pertanyaan.
 ---
 
 ### 🔍 2. TOP_K_INITIAL
@@ -85,25 +84,25 @@ Setelah pertanyaan diubah jadi vektor, sistem mencari chunk yang paling mirip. `
 
 **Fungsi:** *(Jelaskan dengan kata-katamu sendiri apa fungsi dari TOP_K_INITIAL)*
 
-> Jawab: ...
+> Jawab: Top_K_Initial berfungsi untuk menentukan banyaknya kandidat chunk awal berdasarkan kemiripan vektornya. Chunk dokumen akan diubah menjadi angka vektor kemudian dibandingkan seberapa relevan jawabannya berdasarkan kemiripan angka vektor dari pertanyaan yang diberikan.
 
 **Pengaruhnya:**
 
 | Range Nilai | Efek |
 | --- | --- |
-| **Kecil (5–10)** | *(Jelaskan pengaruhnya terhadap kecepatan dan recall)* |
-| **Sedang (15–25)** ⭐ Recommended | *(Jelaskan mengapa range ini direkomendasikan)* |
-| **Besar (30–50)** | *(Jelaskan pengaruhnya terhadap recall dan waktu proses)* |
+| **Kecil (5–10)** | *Nilai kecil membuat sehingga prosesnya menjadi lebih cepat, akan tetapi konteksnya menjadi kurang relevan dikarenakan sedikitnya kandidat yang terpilih*
+| **Sedang (15–25)** ⭐ Recommended | *Nilai sedang direkomendasikan karena kandidat yang terpilih cukup sehingga kecepatan proses dan relevansinya pun lebih baik.* |
+| **Besar (30–50)** | *(Nilai besar menghasilkan banyak kandidat yang lebih seusai dan relevan, akan tetapi hal ini membuat sehingga waktu proses menjadi lebih lambat.)* |
 
 > 💡 **Catatan:** Nilai ini hanya berpengaruh signifikan jika `USE_RERANKER = True`. Tanpa reranker, yang dipakai langsung hanya `FINAL_TOP_M` teratas.
 
 **Pertanyaan Refleksi:**
 
 * Apakah top-k kecil (5–10) cukup untuk dataset kamu? Jelaskan alasannya.
-  > Jawab: ...
+  > Jawab: Kurang sesuai dikarenakan dataset saya terdiri dari 3 poin utama yang dimana apabila nilai top-k kecil maka tidak semua kandidat dari ketiga poin tersebut akan terambil, sehingga hasilnya menjadi kurang relevan.
 
 * Apa hubungan antara `TOP_K_INITIAL` dan `USE_RERANKER`?
-  > Jawab: ...
+  > Jawab: Top_K_Initial menentukan kandidat awal, sementara Use_Reranker memilih ulang kandidat terbaik dan paling relevan dari kandidat-kandidat yang telah ditentukan sebelumnya.
 
 ---
 
@@ -119,25 +118,25 @@ Dari sekian banyak kandidat yang ditemukan, hanya **M teratas** (setelah reranki
 
 **Fungsi:** *(Jelaskan dengan kata-katamu sendiri apa fungsi dari FINAL_TOP_M)*
 
-> Jawab: ...
+> Jawab: Menentukan kandidat-kandidat terbaik yang akhirnya dikirim ke LLM sebagai konteks jawaban yang paling relevan setelah proses retrieval dan reranking dilakukan.
 
 **Pengaruhnya:**
 
 | Range Nilai | Efek |
 | --- | --- |
-| **Sedikit (2–3)** | *(Jelaskan pengaruhnya terhadap fokus jawaban dan risiko konteks terlewat)* |
-| **Sedang (4–6)** ⭐ Recommended | *(Jelaskan mengapa range ini direkomendasikan)* |
-| **Banyak (7–10)** | *(Jelaskan pengaruhnya terhadap kelengkapan, kecepatan, dan potensi kebingungan LLM)* |
+| **Sedikit (2–3)** | *Nilai yang sedikit menghasilkan jawaban yang sangat fokus, akan tetapi relevansi jawabannya masih kurang.* |
+| **Sedang (4–6)** ⭐ Recommended | *Range ini direkomendasikan karena menghasilkan jawaban yang fokusnya cukup dan isinya lengkap serta sesuai.* |
+| **Banyak (7–10)** | *Range ini membuat jawaban yang dihasilkan sangat lengkap, akan tetapi karena konteks yang luas dan lengkap, hal ini dapat membuat model menjadi bingung karena panjangnya konteks tersebut.* |
 
 > 💡 **Catatan:** Semakin banyak konteks = semakin banyak token yang dikirim ke LLM = latency lebih tinggi. Jaga agar tetap efisien.
 
 **Pertanyaan Refleksi:**
 
 * Benarkah "semakin banyak konteks semakin bagus"? Jelaskan berdasarkan eksperimenmu.
-  > Jawab: ...
+  > Jawab: Tidak selalu benar karena banyaknya konteks dapat membuat model kesulitan memilih informasi yang paling relevan karena fokusnya terbagi karena banyaknya konteks tersebut, sehingga jawaban yang dihasilkan menjadi kurang fokus.
 
 * Apa yang terjadi kalau konteks yang dikirim ke LLM saling bertentangan?
-  > Jawab: ...
+  > Jawab: Hal ini dapat membuat jawaban yang dihasilkan tercampur menjadi jawaban yang tidak konsisten, sehingga relevansi jawabannya pun manjadi menurun.
 
 ---
 
@@ -153,24 +152,24 @@ Reranker adalah model tambahan (Cross-Encoder) yang mengevaluasi ulang pasangan 
 
 **Fungsi:** *(Jelaskan dengan kata-katamu sendiri apa fungsi dari USE_RERANKER)*
 
-> Jawab: ...
+> Jawab: Fungsinya menilai ulang tingkat relevansi chunk dan pertanyaan sehingga hasil yang didapatkan oleh LLM menjadi lebih sesuai dan tepat.
 
 **Pengaruhnya:**
 
 | Mode | Efek |
 | --- | --- |
-| `True` | *(Jelaskan pengaruhnya terhadap presisi, relevansi konteks, dan latency)* |
-| `False` | *(Jelaskan apa yang terjadi jika hanya mengandalkan cosine similarity)* |
+| `True` | *Mode ini memberikan hasil yang lebih akurat dan relevan, akan tetapi prosesnya menjadi lebih lambat.* |
+| `False` | *Mode ini menghasilkan proses yang lebih cepat, akan tetapi tingkat keakuratannya menjadi menurun.* |
 
 > 💡 **Catatan:** Untuk dokumen teknis atau pertanyaan yang ambigu, reranker sangat membantu. Untuk kecepatan maksimal, matikan.
 
 **Pertanyaan Refleksi:**
 
 * Pada query jenis apa reranker paling terasa manfaatnya? Berikan contoh.
-  > Jawab: ...
+  > Jawab: Reranker paling terasa pada query yang sulit dimengerti dan ambigu, seperti "perbedaan antara sejarah dan perkembangan AI" atau "manfaat AI dalam bisnis dan bidang kecantika"
 
 * Berapa kira-kira tambahan latency saat reranker dinyalakan di eksperimenmu?
-  > Jawab: ...
+  > Jawab: Saat reranker dinyalakan terdapat penambahan latency sebesar 100-300 ms
 
 ---
 
@@ -186,26 +185,26 @@ Temperature mengatur distribusi probabilitas saat LLM memilih kata berikutnya. S
 
 **Fungsi:** *(Jelaskan dengan kata-katamu sendiri apa fungsi dari TEMPERATURE)*
 
-> Jawab: ...
+> Jawab: Fungsi dari temperatur ialah mengatur seberapa besar keberagaman daripada jawaban yang dihasilkan oleh model, dimana semakin rendah nilainya maka jawaban yang dihasilkan pun semakin sesuai dengan informasi yang ada dan sebaliknya.
 
 **Pengaruhnya:**
 
 | Range Nilai | Efek |
 | --- | --- |
-| **0.0–0.2** ⭐ Recommended untuk RAG | *(Jelaskan sifat jawaban di range ini: konsistensi, faktualitas)* |
-| **0.3–0.5** | *(Jelaskan sifat jawaban di range ini)* |
-| **0.6–0.8** | *(Jelaskan sifat jawaban di range ini: kreativitas, variasi)* |
-| **0.9–1.0** | *(Jelaskan risiko jawaban di range ini: halusinasi, keacakan)* |
+| **0.0–0.2** ⭐ Recommended untuk RAG | *Jawaban yang diberikan sangat stabil dan faktual sehingga cocok digunakan untuk RAG* |
+| **0.3–0.5** | *Jawaban yang dihasilkan masih akurat, akan tetapi sudah mulai bervariasi* |
+| **0.6–0.8** | *Jawaban di range ini sudah kreatif dan bervariasi, sehingga hasilnya menjadi kurang stabil* |
+| **0.9–1.0** | *Jawaban yang dihasilkan di range ini sudah sangat kreatif dan bisa keluar daripada konteks/halusinasi* |
 
 > ⚠️ **Catatan:** Untuk RAG (jawaban berdasarkan dokumen), gunakan temperature rendah (0.1–0.3) agar jawaban tetap *grounded* pada konteks yang diberikan.
 
 **Pertanyaan Refleksi:**
 
 * Untuk QA berbasis dokumen perusahaan, temperatur ideal berapa? Jelaskan alasannya.
-  > Jawab: ...
+  > Jawab: 0.1 – 0.3 karena QA dokumen membutuhkan jawaban yang akurat dan berbasis konteks.
 
 * Apa yang terjadi pada jawaban saat kamu naikkan temperature ke 0.9?
-  > Jawab: ...
+  > Jawab: Jawaban menjadi sangat kreatif dan bahkan isinya sudah menyimpang dari informasi yang ada di dokumen.
 
 ---
 
@@ -229,19 +228,19 @@ Setiap model punya ukuran parameter dan kemampuan yang berbeda. Isi tabel di baw
 
 | Model | Ukuran | Pengaruh terhadap Kecepatan & Kualitas |
 | --- | --- | --- |
-| `llama-3.1-8b-instant` (Default) | 8B parameter | *(Jelaskan kecepatan, kualitas jawaban, dan kapan cocok dipakai)* |
-| `openai/gpt-oss-120b` | 120B parameter | *(Jelaskan kecepatan, kualitas jawaban, dan kapan cocok dipakai)* |
-| `llama-3.3-70b-versatile` | 70B parameter | *(Jelaskan kecepatan, kualitas jawaban, dan kapan cocok dipakai)* |
+| `llama-3.1-8b-instant` (Default) | 8B parameter | *Model ini bekerja dengan cepat dan menghasilkan jawaban yang cukup relevan dengan konteks. Model ini cocok digunakan untuk testing.* |
+| `openai/gpt-oss-120b` | 120B parameter | *Jawaban yang dihasilkan model ini sangat akurat, tetapi model ini bekerja cukup lambat. Cocok digunakan untuk dokumen yang panjang dan kompleks.* |
+| `llama-3.3-70b-versatile` | 70B parameter | *Model ini bekerja dengan sangat stabil dan cepat, sehingga cocok digunakan untuk berbagai jenis dokumen dan dataset, sesuai jika digunakan untuk membuat chatbot* |
 
 > 💡 **Tips:** Mulai dengan `llama-3.1-8b-instant` untuk development. Saat butuh akurasi tinggi, switch ke `llama-3.3-70b-versatile` atau `openai/gpt-oss-120b`.
 
 **Pertanyaan Refleksi:**
 
 * Apakah peningkatan kualitas jawaban dari model besar sebanding dengan penambahan waktu? Jelaskan.
-  > Jawab: ...
+  > Jawab: Tidak selalu sebanding. Model besar memang cocok untuk data yang kompleks dan dapat menghasilkan jawaban yang akurat, akan tetapi ini kurang sesuai apabila digunakan untuk dataset yang kecil. Model yang lebih kecil dan sederhana lebih cocok untuk bekerja pada dataset yang kecil karena dapat menghasilkan jawaban yang sesuai dalam waktu yang singkat.
 
 * Model mana yang paling cocok untuk use-case dokumenmu? Mengapa?
-  > Jawab: ...
+  > Jawab: Model yang paling cocok adalah llama-3.1-8b-instant, karena dokumen saya hanya terdiri dari 3 halaman dan informasi yang terdapat didalamnya pun tidak terlalu banyak dan kompleks, sehingga model ini sudah cukup untuk menghasilkan jawaban yang sesuai dalam waktu yang singkat.
 
 ---
 
@@ -258,8 +257,8 @@ SCORE_THRESHOLD = 0.30 # skor minimum cosine similarity
 
 | Parameter | Nilai Default | Fungsi |
 | --- | --- | --- |
-| `CHUNK_OVERLAP` | 60 | *(Jelaskan fungsi overlap antar chunk dan apa dampaknya jika terlalu besar/kecil)* |
-| `SCORE_THRESHOLD` | 0.30 | *(Jelaskan fungsi threshold skor dan kapan harus dinaikkan/diturunkan)* |
+| `CHUNK_OVERLAP` | 60 | *Fungsi overlap antar chunk ialah menjaga kesinambungan konteks informasi di batas akhir chunk pada saat dibagi atau dipotong, sehingga informasinya menjadi lebih konsisten. Ketika overlap terlalu kecil maka konteks antar chunk akan menjadi terpotong sehingga konteksnya informasinya menjadi kurang sesuai, sebaliknya apabila overlap terlalu besar maka banyak isi chunk menjadi berulang sehingga informasi yang dihasilkan pun menjadi berulang.* |
+| `SCORE_THRESHOLD` | 0.30 | *Threshold skor berfungsi sebagai batas minimum skor similarity antara query dan chunk sebelum chunk dianggap relevan untuk digunakan sebagai konteks. Ketika parameter ini dinaikan maka sistem menjadi lebih selektif sehingga hanya menghasilkan konteks yang relevan, tetapi bisa juga menghilangkan konteks lainnya yang tidak kalah penting. Sebaliknya, ketika diturunkan maka banyak chunk yang lolos, akan tetapi hal ini berarti juga bahwa konteks yang kurang relevan juga dapat ikut masuk sehingga kualitas jawaban menjadi menurun.* |
 
 ---
 
